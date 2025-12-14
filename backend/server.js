@@ -1,3 +1,4 @@
+const history = [];
 const express = require("express");
 const cors = require("cors");
 
@@ -53,8 +54,16 @@ app.post("/calculate", (req, res) => {
       break;
   }
 
+  const record = { a: numA, b: numB, operator, result, timestamp: Date.now() };
+
+  history.unshift(record);
+
   // Return JSON
-  return res.json({ result });
+  res.json({ result });
+});
+
+app.get("/history", (req, res) => {
+  res.json({ history });
 });
 
 // Start server

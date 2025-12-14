@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type HistoryItem = {
   a: number;
@@ -12,6 +12,17 @@ function App() {
   const [valueB, setValueB] = useState("");
   const [result, setResult] = useState<string | number>("");
   const [history, setHistory] = useState<HistoryItem[]>([]);
+
+  useEffect(() => {
+    fetch("http://localhost:3000/history")
+      .then((res) => res.json())
+      .then((data) => {
+        setHistory(data.history);
+      })
+      .catch(() => {
+        console.error("Failed to fetch history from server.");
+      });
+  }, []);
 
   const handleOperation = async (operator: "+" | "-" | "*" | "/") => {
     const numA = parseFloat(valueA);
@@ -47,15 +58,12 @@ function App() {
 
       setResult(resultFromServer);
 
-  const newItem: HistoryItem = {
-    a: numA,
-    b: numB,
-    operator,
-    result: resultFromServer,
-  };
+      fetch("http://localhost:3000/history")
+        .then((res) => res.json())
+        .then((data) => {
+          setHistory(data.history);
+        });
 
-  // Here you can add code to save newItem to history if needed
-  setHistory((prev) => [newItem, ...prev]);
     } catch (error) {
       setResult("Network error: backend server unreachable.");
     }
