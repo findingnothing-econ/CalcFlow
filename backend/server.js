@@ -1,6 +1,8 @@
-const history = [];
 const express = require("express");
 const cors = require("cors");
+const Database = require("better-sqlite3");
+const dbPath = process.env.DB_PATH || "./data/calcflow.db";
+const db = new Database(dbPath);
 
 const app = express();
 
@@ -54,21 +56,37 @@ app.post("/calculate", (req, res) => {
       break;
   }
 
-  const record = { a: numA, b: numB, operator, result, timestamp: Date.now() };
-
-  history.unshift(record);
+  db.prepare(`
+    INSERT INTO calculations (a, b, operator, result, created_at)
+    VALUES (?, ?, ?, ?, ?)
+  `).run(
+    numA,
+    numB,
+    operator,
+    result,
+    Date.now()
+  );
 
   // Return JSON
   res.json({ result });
 });
 
 app.get("/history", (req, res) => {
-  res.json({ history });
+  const rows = db.prepare(`
+    SELECT id, a, b, operator, result, created_at
+    FROM calculations
+    ORDER BY id DESC
+    LIMIT 50
+  `).all();
+
+  res.json({ history: rows });
 });
 
 // Start server
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Backend running at http://localhost:${PORT}`);
-  console.log("Try: http://localhost:3000/health");
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Backend running at http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
