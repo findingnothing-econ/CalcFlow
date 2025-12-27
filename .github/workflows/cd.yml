@@ -23,7 +23,7 @@ jobs:
           mkdir -p ~/.ssh
 
           # Write private key from GitHub Secret into a file
-          echo "${{ secrets.ECS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.ECS_SSH_KEY }}" | base64 -d > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
           # Trust the server host key (required for non-interactive SSH)
