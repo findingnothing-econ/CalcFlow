@@ -9,22 +9,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Install rsync
+        run: sudo apt-get update && sudo apt-get install -y rsync
 
-      - name: Setup SSH
+      - name: Upload code to ECS (rsync)
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.ECS_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.ECS_HOST }} >> ~/.ssh/known_hosts
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/id_ed25519" \
+            ./ \
+            ${{ secrets.ECS_USER }}@${{ secrets.ECS_HOST }}:/root/apps/CalcFlow
 
-      - name: Deploy to ECS
+      - name: Restart services on ECS
         run: |
-          ssh ${{ secrets.ECS_USER }}@${{ secrets.ECS_HOST }} << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.ECS_USER }}@${{ secrets.ECS_HOST }} << 'EOF'
             set -e
             cd /root/apps/CalcFlow
-            git pull origin main
 
             # Backend
             cd backend
@@ -36,6 +35,5 @@ jobs:
             npm install
             npm run build
 
-            # Reload Nginx
             systemctl reload nginx
           EOF
