@@ -83,10 +83,13 @@ app.get("/history", (req, res) => {
 });
 
 // Start server
+const PORT = process.env.PORT || 3000;
+
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Backend running at http://localhost:${PORT}`);
+  app.listen(PORT, "127.0.0.1", () => {
+    console.log(`Backend running at http://127.0.0.1:${PORT}`);
   });
 }
+
 
 module.exports = app;
