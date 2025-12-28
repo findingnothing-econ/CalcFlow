@@ -13,12 +13,12 @@ app.use(cors());
 app.use(express.json());
 
 // Health check
-app.get("/api/health", (req, res) => {
+app.get("/health", (req, res) => {
   res.json({ ok: true });
 });
 
 // Calculate endpoint
-app.post("/api/calculate", (req, res) => {
+app.post("/calculate", (req, res) => {
   const { a, b, operator } = req.body;
 
   const numA = Number(a);
@@ -71,7 +71,7 @@ app.post("/api/calculate", (req, res) => {
   res.json({ result });
 });
 
-app.get("/api/history", (req, res) => {
+app.get("/history", (req, res) => {
   const rows = db.prepare(`
     SELECT id, a, b, operator, result, created_at
     FROM calculations
