@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
+import "./App.css";
 
 type HistoryItem = {
   a: number;
   b: number;
   operator: "+" | "-" | "*" | "/";
   result: number;
-}
+};
 
 function App() {
   const [valueA, setValueA] = useState("");
@@ -16,9 +17,7 @@ function App() {
   useEffect(() => {
     fetch("http://localhost:3000/history")
       .then((res) => res.json())
-      .then((data) => {
-        setHistory(data.history);
-      })
+      .then((data) => setHistory(data.history))
       .catch(() => {
         console.error("Failed to fetch history from server.");
       });
@@ -27,6 +26,7 @@ function App() {
   const handleOperation = async (operator: "+" | "-" | "*" | "/") => {
     const numA = parseFloat(valueA);
     const numB = parseFloat(valueB);
+
     if (isNaN(numA) || isNaN(numB)) {
       setResult("Please enter two valid numbers.");
       return;
@@ -37,56 +37,34 @@ function App() {
     try {
       const response = await fetch("http://localhost:3000/calculate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          a: numA,
-          b: numB,
-          operator: operator,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ a: numA, b: numB, operator }),
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         setResult(data.error || "Server error");
         return;
       }
 
-      const resultFromServer = data.result;
+      setResult(data.result);
 
-      setResult(resultFromServer);
-
-      fetch("http://localhost:3000/history")
-        .then((res) => res.json())
-        .then((data) => {
-          setHistory(data.history);
-        });
-
-    } catch (error) {
+      const historyRes = await fetch("http://localhost:3000/history");
+      const historyData = await historyRes.json();
+      setHistory(historyData.history);
+    } catch {
       setResult("Network error: backend server unreachable.");
     }
-};
+  };
 
   return (
-    <div
-      style={{
-        width: "600px",
-        margin: "0 auto",
-        textAlign: "center",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: "20px",
-      }}
-    >
-      <h2>CalcFlow Calculator</h2>
+  <div className="app-container">
+    <div className="calc-card">
+      <h2 className="title">CalcFlow Calculator</h2>
 
       <input
-        style={{ width: "100%", marginBottom: "10px" }}
+        className="calc-input"
         type="number"
         value={valueA}
         onChange={(e) => setValueA(e.target.value)}
@@ -94,92 +72,45 @@ function App() {
       />
 
       <input
-        style={{ width: "100%", marginBottom: "10px" }}
+        className="calc-input"
         type="number"
         value={valueB}
         onChange={(e) => setValueB(e.target.value)}
         placeholder="Enter second number"
       />
 
-      <div style={{ marginBottom: "24px", display: "flex", gap: "16px", justifyContent: "center" }}>
-        <button
-          style={{
-            minWidth: "64px",
-            padding: "0.6em 1.2em",
-            fontSize: "1.5rem",
-            fontWeight: 700,
-            color: "#b30000",
-            backgroundColor: "#ffd54f",
-            border: "1px solid rgba(0,0,0,0.12)",
-          }}
-          onClick={() => handleOperation("+")}
-        >
-          +
-        </button>
-
-        <button
-          style={{
-            minWidth: "64px",
-            padding: "0.6em 1.2em",
-            fontSize: "1.5rem",
-            fontWeight: 700,
-            color: "#b30000",
-            backgroundColor: "#ffd54f",
-            border: "1px solid rgba(0,0,0,0.12)",
-          }}
-          onClick={() => handleOperation("-")}
-        >
-          -
-        </button>
-
-        <button
-          style={{
-            minWidth: "64px",
-            padding: "0.6em 1.2em",
-            fontSize: "1.5rem",
-            fontWeight: 700,
-            color: "#b30000",
-            backgroundColor: "#ffd54f",
-            border: "1px solid rgba(0,0,0,0.12)",
-          }}
-          onClick={() => handleOperation("*")}
-        >
-          ×
-        </button>
-
-        <button
-          style={{
-            minWidth: "64px",
-            padding: "0.6em 1.2em",
-            fontSize: "1.5rem",
-            fontWeight: 700,
-            color: "#b30000",
-            backgroundColor: "#ffd54f",
-            border: "1px solid rgba(0,0,0,0.12)",
-          }}
-          onClick={() => handleOperation("/")}
-        >
-          ÷
-        </button>
+      <div className="operator-group">
+        {["+", "-", "*", "/"].map((op) => (
+          <button
+            key={op}
+            className="operator-button"
+            onClick={() => handleOperation(op as any)}
+          >
+            {op === "*" ? "×" : op === "/" ? "÷" : op}
+          </button>
+        ))}
       </div>
 
-      <h3>Result: {result !== null ? result : "—"}</h3>
+      <div className="result">
+        Result: <span className="result-value">{result !== null ? result : "—"}</span>
+      </div>
 
-      <hr />
+      <hr className="divider" />
 
-      <h3>History</h3>
+      <h3 className="history-title">History</h3>
 
-      {history.length === 0 && <p>No calculations yet.</p>}
+      {history.length === 0 && <p className="history-empty">No calculations yet.</p>}
 
-      <ul style={{ listStyle: "none", padding: 0 }}>
+      <ul className="history-list">
         {history.map((item, index) => (
-          <li key={index} style={{ marginBottom: "6px" }}>
+          <li key={index} className="history-item">
             {item.a} {item.operator} {item.b} = {item.result}
           </li>
         ))}
       </ul>
     </div>
-  );
+  </div>
+);
 }
 
 export default App;

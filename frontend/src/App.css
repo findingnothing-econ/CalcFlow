@@ -1,42 +1,155 @@
-#root {
-  max-width: 1280px;
+/* Global sane defaults */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --card: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: rgba(0, 0, 0, 0.12);
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  background: #f6f7fb;
+}
+
+/* App layout */
+.app-container {
+  /* FIX: responsive width instead of fixed 600px */
+  width: min(600px, 100%);
   margin: 0 auto;
-  padding: 2rem;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding: 24px 16px;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Card wrapper for better UI */
+.calc-card {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.title {
+  margin: 0 0 12px;
+  font-size: 1.35rem;
+  letter-spacing: 0.2px;
+}
+
+/* Inputs */
+.calc-input {
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px 12px;
+
+  font-size: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  outline: none;
+  background: #fff;
+}
+
+.calc-input:focus {
+  border-color: rgba(59, 130, 246, 0.55);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+/* Operator buttons container */
+.operator-group {
+  margin: 14px 0 6px;
+  display: grid;
+
+  /* responsive grid: 4 cols on wider screens, 2 cols on small screens */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+/* Operator buttons */
+.operator-button {
+  padding: 12px 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+
+  color: #8a0000;
+  background-color: #ffe08a;
+
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+
+  transition: transform 120ms ease, filter 120ms ease;
+}
+
+.operator-button:hover {
+  filter: brightness(0.97);
+  transform: translateY(-1px);
+}
+
+.operator-button:active {
+  transform: translateY(0px);
+}
+
+.result {
+  margin: 12px 0 0;
+  font-size: 1.05rem;
+}
+
+.result-value {
+  font-weight: 800;
+}
+
+.divider {
+  margin: 16px 0;
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* History */
+.history-title {
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+}
+
+.history-empty {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.history-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+
+  display: grid;
+  gap: 8px;
+}
+
+.history-item {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: left;
+  background: #fafafa;
+}
+
+/* Mobile tweaks */
+@media (max-width: 420px) {
+  .operator-group {
+    grid-template-columns: repeat(2, 1fr);
   }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }
